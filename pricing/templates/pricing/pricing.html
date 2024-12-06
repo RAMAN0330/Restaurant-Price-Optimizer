@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    .menu-item {
+        transition: all 0.3s ease;
+    }
+    .menu-item:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+    .price-change {
+        font-size: 0.9em;
+        padding: 3px 8px;
+        border-radius: 4px;
+        margin-left: 10px;
+    }
+    .price-increase {
+        background-color: #fed7d7;
+        color: #c53030;
+    }
+    .price-decrease {
+        background-color: #c6f6d5;
+        color: #2f855a;
+    }
+    .busy-indicator {
+        width: 200px;
+        height: 20px;
+        background-color: #edf2f7;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .busy-bar {
+        height: 100%;
+        background-color: #4299e1;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2>{{ restaurant_details.name }}</h2>
+                    <p class="text-muted">{{ restaurant_details.address }}</p>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="text-warning">★</span> {{ restaurant_details.rating }}
+                            <small class="text-muted">({{ restaurant_details.total_ratings }} reviews)</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-info">{{ restaurant_details.price_level }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Conditions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Current Conditions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Weather</h6>
+                            <p>{{ weather_data.temperature_f|floatformat:1 }}°F</p>
+                            <p>{{ weather_data.condition }}</p>
+                            <p class="text-muted small">{{ weather_data.description }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Busy Level</h6>
+                            <div class="progress">
+                                <div class="progress-bar {% if busy_level > 70 %}bg-danger{% endif %}" 
+                                     role="progressbar" 
+                                     style="width: {{ busy_level }}%"
+                                     aria-valuenow="{{ busy_level }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    {{ busy_level }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Items with Dynamic Pricing -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Menu Items with Dynamic Pricing</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Original Price</th>
+                                    <th>Suggested Price</th>
+                                    <th>Change</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in menu_items %}
+                                <tr>
+                                    <td>{{ item.name }}</td>
+                                    <td>${{ item.original_price|floatformat:2 }}</td>
+                                    <td>
+                                        <strong class="{% if item.price_change > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            ${{ item.new_price|floatformat:2 }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if item.price_change > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ item.price_change|floatformat:1 }}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nearby Competitors -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Nearby Competitors</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for restaurant in nearby_restaurants %}
+                        <div class="list-group-item">
+                            <h6 class="mb-1">{{ restaurant.name }}</h6>
+                            <p class="mb-1">
+                                <span class="text-warning">★</span> {{ restaurant.rating }}
+                                <small class="text-muted">({{ restaurant.total_ratings }})</small>
+                            </p>
+                            <small class="text-muted">
+                                Price Level: {{ restaurant.price_level }}
+                                {% if restaurant.distance != 'N/A' %}
+                                • {{ restaurant.distance }} away
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

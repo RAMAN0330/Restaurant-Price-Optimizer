@@ -1,0 +1,9 @@
+Django
+requests==2.31.0
+python-dotenv==1.0.0
+scikit-learn==1.3.2
+numpy==1.26.2
+pandas==2.1.4
+python-dateutil==2.8.2
+urllib3==1.26.18  # Using older version for better SSL compatibility
+certifi>=2023.7.22

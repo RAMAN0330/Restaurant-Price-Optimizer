@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2>Search Results for "{{ search_query }}"</h2>
+            <a href="{% url 'pricing' %}" class="btn btn-outline-secondary">New Search</a>
+        </div>
+    </div>
+
+    {% if error_message %}
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Error</h4>
+        <p>{{ error_message }}</p>
+        <hr>
+        <p class="mb-0">
+            Possible issues:
+            <ul>
+                <li>The Google Places API key might not be properly configured</li>
+                <li>The API quota might have been exceeded</li>
+                <li>The API service might be temporarily unavailable</li>
+            </ul>
+        </p>
+        {% if google_maps_api_key %}
+        <hr>
+        <p class="mb-0"><strong>API Key Status:</strong> Present</p>
+        {% else %}
+        <hr>
+        <p class="mb-0 text-danger"><strong>API Key Status:</strong> Missing</p>
+        {% endif %}
+    </div>
+    {% elif restaurants %}
+    <div class="row">
+        {% for restaurant in restaurants %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if restaurant.photos.0.photo_reference %}
+                <img src="https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference={{ restaurant.photos.0.photo_reference }}&key={{ google_maps_api_key }}"
+                     class="card-img-top" alt="{{ restaurant.name }}" onerror="this.style.display='none'">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ restaurant.name }}</h5>
+                    <p class="card-text">{{ restaurant.formatted_address }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="rating">
+                            {% if restaurant.rating %}
+                            <span class="text-warning">★</span> {{ restaurant.rating }}
+                            <small class="text-muted">({{ restaurant.user_ratings_total|default:"0" }} reviews)</small>
+                            {% else %}
+                            <small class="text-muted">No ratings yet</small>
+                            {% endif %}
+                        </div>
+                        {% if restaurant.price_level %}
+                        <div class="price-level">
+                            {% with ''|center:restaurant.price_level as range %}
+                            {% for _ in range %}₹{% endfor %}
+                            {% endwith %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="restaurant-details small text-muted mb-3">
+                        <div>
+                            {% if restaurant.opening_hours.open_now is True %}
+                            <span class="text-success">● Open now</span>
+                            {% elif restaurant.opening_hours.open_now is False %}
+                            <span class="text-danger">● Closed</span>
+                            {% endif %}
+                        </div>
+                        {% if restaurant.types %}
+                        <div>
+                            {% for type in restaurant.types|slice:":3" %}
+                            <span class="badge bg-light text-dark me-1">{{ type|title }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'pricing' %}?place_id={{ restaurant.place_id }}" 
+                       class="btn btn-primary w-100">View Analysis</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h4 class="alert-heading">No Results Found</h4>
+        <p>No restaurants found matching your search term "{{ search_query }}".</p>
+        <hr>
+        <p class="mb-0">Suggestions:</p>
+        <ul>
+            <li>Check if the restaurant name is spelled correctly</li>
+            <li>Try adding the city name (e.g., "Restaurant Name New York")</li>
+            <li>Try a different restaurant name</li>
+            <li>Make sure the search term is specific enough</li>
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

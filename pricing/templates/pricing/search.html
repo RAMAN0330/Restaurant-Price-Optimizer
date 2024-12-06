@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Restaurant Price Analysis</h2>
+                    <form method="get" action="{% url 'pricing' %}" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="restaurant" class="form-label">Search for a restaurant:</label>
+                            <input type="text" class="form-control" id="restaurant" name="restaurant" 
+                                   placeholder="Enter restaurant name" required>
+                            <div class="invalid-feedback">
+                                Please enter a restaurant name.
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}
